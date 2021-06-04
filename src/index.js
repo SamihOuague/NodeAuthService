@@ -1,8 +1,9 @@
 let express = require("express");
 let cors = require("cors");
 let app = express();
-let auth = require("./api/authentication");
+let Members = require("./members/Router");
 let mongoose = require("mongoose");
+let Model = require("./members/Model");
 
 mongoose.connect('mongodb://localhost/mydb', {
   useNewUrlParser: true,
@@ -13,7 +14,6 @@ mongoose.connect('mongodb://localhost/mydb', {
 
 app.use(cors());
 app.use(express.json());
-
-app.post("/login", auth.signIn);
+app.use(Members);
 
 app.listen(8080);
