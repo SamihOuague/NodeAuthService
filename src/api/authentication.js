@@ -1,4 +1,6 @@
 let Model = require("../members/Model");
+const { jwt_sign } = require("../utils/jwt");
+let jwt = require("../utils/jwt");
 
 module.exports = {
     signIn: (req, res) => {
@@ -13,7 +15,7 @@ module.exports = {
                     if (err || !val) return res.status(401).send({message: "Something is wrong with the password"});
                     else return res.json({
                         success: true,
-                        message: "You are logged."
+                        token: jwt.jwt_sign(docs)
                     });
                 });
             }
@@ -33,7 +35,7 @@ module.exports = {
             });
             model.save((err, user) => {
                 if (err) next(err);
-                res.json({success: true, user});
+                res.json({success: true, token: jwt_sign(user)});
             });
         });
     }

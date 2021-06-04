@@ -3,7 +3,6 @@ let cors = require("cors");
 let app = express();
 let Members = require("./members/Router");
 let mongoose = require("mongoose");
-let Model = require("./members/Model");
 
 mongoose.connect('mongodb://localhost/mydb', {
   useNewUrlParser: true,
