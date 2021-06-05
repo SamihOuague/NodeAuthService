@@ -1,8 +1,8 @@
 module.exports = {
-    updateProfil: (req, res, next) => {
-        return;
-    },
-    forgotPwd: (req, res, next) => {
-        return;
-    }
-}
+  updateProfil: (req, res, next) => {
+
+  },
+  forgotPwd: (req, res, next) => {
+
+  }
+};

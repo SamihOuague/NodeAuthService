@@ -1,8 +1,8 @@
-let express = require("express");
-let cors = require("cors");
-let app = express();
-let Members = require("./members/Router");
-let mongoose = require("mongoose");
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const Members = require('./members/Router');
+const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/mydb', {
   useNewUrlParser: true,
