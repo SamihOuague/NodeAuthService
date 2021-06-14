@@ -15,8 +15,8 @@ mongoose.connect('mongodb://localhost/mydb', {
 app.use(cors());
 app.use(express.json());
 app.use(Members);
-app.get("/ping", isAuth, (req, res) => {
-  res.send({ ok: "ok" });
+app.get('/ping', isAuth, (req, res) => {
+  res.send({ logged: true });
 });
 
 app.listen(8080);
