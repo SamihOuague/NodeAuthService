@@ -19,4 +19,4 @@ app.get('/ping', isAuth, (req, res) => {
   res.send({ logged: true });
 });
 
-app.listen(8080);
+app.listen(3000);

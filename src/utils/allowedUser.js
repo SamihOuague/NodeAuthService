@@ -3,7 +3,6 @@ const { jwtVerify } = require('./jwt');
 module.exports = {
   isAuth: (req, res, next) => {
     const barear = req.headers.authorization;
-    console.log(barear);
     if (barear) {
       const token = barear.split(' ')[1];
       try {
