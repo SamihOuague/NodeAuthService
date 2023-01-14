@@ -2,14 +2,27 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const Schema = new mongoose.Schema({
-	password: {
+	firstname: {
+		type: String,
+		required: true,
+	},
+	lastname: {
 		type: String,
 		required: true,
 	},
 	email: {
 		type: String,
 		required: true,
-	}
+	},
+	password: {
+		type: String,
+		required: true,
+	},
+	address: String,
+	addressDetails: String,
+	zipcode: String,
+	city: String,
+	phoneNumber: String,
 });
 
 Schema.pre('save', function (next) {
