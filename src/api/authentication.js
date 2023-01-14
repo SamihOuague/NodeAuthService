@@ -23,13 +23,12 @@ module.exports = {
     });
   },
   signUp: (req, res, next) => {
-    const { username, password, email } = req.body;
-    if (!username || !password || !email) { return res.status(401).send({ message: 'Something is wrong !' }); }
+    const { password, email } = req.body;
+    if (!password || !email) { return res.status(401).send({ message: 'Something is wrong !' }); }
     Model.findOne({ email }, (err, docs) => {
       if (err) return res.status(422).send({ err });
       if (docs) return res.status(422).send({ message: 'User already exists !' });
       const model = new Model({
-        username: username,
         password: password,
         email: email
       });
