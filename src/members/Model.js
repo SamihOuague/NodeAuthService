@@ -23,6 +23,7 @@ const Schema = new mongoose.Schema({
 	zipcode: String,
 	city: String,
 	phoneNumber: String,
+	resetId: String,
 });
 
 Schema.pre('save', function (next) {
