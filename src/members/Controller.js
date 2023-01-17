@@ -1,6 +1,22 @@
 const Model = require("./Model");
-const { jwtVerify } = require("../utils/jwt");
-const randomStr = require("unique-slug");
+const { jwtVerify, jwtPwdReset, jwtEmailConfirm } = require("../utils/jwt");
+const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+
+const sendEmail = async (data) => {
+	let transporter = nodemailer.createTransport({
+		host: "smtp.gmail.com",
+		port: 465,
+		secure: true,
+		auth: {
+			user: "",
+			pass: "",
+		},
+	});
+	let infos = await transporter.sendMail(data);
+
+	return infos;
+};
 
 module.exports = {
 	getUser: async (req, res) => {
@@ -23,7 +39,6 @@ module.exports = {
 			let user = await Model.findOneAndUpdate({_id: decoded.sub}, req.body, {new: true});
 			if (!user) return res.sendStatus(404);
 			return res.send(user);
-
 		} catch(e) {
 			return res.sendStatus(500);
 		}
@@ -40,24 +55,76 @@ module.exports = {
 		}
 	},
 	forgotPwd: async (req, res) => {
-		const { email } = req.body;
 		try {
+			const { email } = req.body;
 			if (!email) return res.sendStatus(400);
-			let user = await Model.findOneAndUpdate({email}, { resetId: { url_id: randomStr() } });
-			if (!user || !user._id) res.sendStatus(404);
-			return res.send((await Model.findOne({email}, {email: 1, resetId: 1})));
+			let user = await Model.findOne({email}, {_id: 1, email: 1});
+			if (!user || !user._id) return res.sendStatus(404);
+			const url_token = jwtPwdReset(user);
+			let msg = await sendEmail({
+				from: "souaguen96@gmail.com",
+				to: user.email,
+				subject: "Reset Your Password",
+				text: `Copy this link : http://localhost:3000/reset-password?url_token=${url_token}`,
+				html: `<a href=\"http://localhost:3000/reset-password?url_token=${url_token}\">
+							Click Here to reset password
+						</a>
+						<p>Or copy this link : http://localhost:3000/reset-password?url_token=${url_token}</p>`,
+			});
+			if (!msg || !msg.messageId) return res.sendStatus(500);
+			return res.send({msg});
 		} catch(e) {
 			return res.sendStatus(404);
 		}
 	},
 	resetPwd: async (req, res) => {
-		const { url_id } = req.params;
+		const { password, url_token } = req.body;
 		try {
-			let user = await Model.findOne({ resetId: url_id });
+			let decoded = jwtVerify(url_token);
+			if (!password || password.length < 6) return res.sendStatus(400);
+			let user = await Model.findOneAndUpdate({ _id: decoded.r_sub }, {password: bcrypt.hashSync(password, 12)});
 			if (!user) return res.sendStatus(404);
 			return res.send(user);
 		} catch (e) {
-			return res.sendStatus(400);
+			return res.sendStatus(500);
+		}
+	},
+	getConfirmation: async (req, res) => {
+		try {
+			let token = req.headers.authorization.split(' ')[1];
+			let decoded = jwtVerify(token);
+			let user = await Model.findOne({ _id: decoded.sub }, {_id: 1, email: 1});
+			if (!user || !user._id) res.sendStatus(404);
+			else if (user.confirmed) return res.status(400).send({msg: "Email already confirmed"});
+			let url_token = jwtEmailConfirm(user);
+			let msg = await sendEmail({
+				from: "souaguen96@gmail.com",
+				to: user.email,
+				subject: "Email Confirmation",
+				text: `Copy this link : https://localhost:3001/verify-email?url_token=${url_token}`,
+				html: `<a href=\"https://localhost:3001/verify-email?url_token=${url_token}\">
+							Click Here to confirm
+						</a>
+						<p>Or copy this link : https://localhost:3001/verify-email?url_token=${url_token}</p>`,
+			});
+			if (!msg || !msg.messageId) return res.sendStatus(500);
+			return res.send({msg});
+		} catch(e) {
+			return res.sendStatus(500);
+		}
+	},
+	verifyEmail: async (req, res) => {
+		try {
+			const { url_token } = req.query;
+			console.log(req.params)
+			if (!url_token) return res.sendStatus(400);
+			const decoded = jwtVerify(url_token);
+			if (!decoded) return res.sendStatus(401);
+			const user = await Model.findByIdAndUpdate({_id: decoded.e_sub}, { confirmed: true }, {new: true});
+			if (!user) return res.sendStatus(404);
+			return res.send({confirmed: user.confirmed});
+		} catch(e) {
+			return res.sendStatus(500);
 		}
 	},
 	ping: (req, res) => {

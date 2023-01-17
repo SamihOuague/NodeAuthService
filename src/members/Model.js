@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+const ResetPwdSchema = new mongoose.Schema({
+	url_param: String,
+	created_at: Date,
+});
+
 const Schema = new mongoose.Schema({
 	firstname: {
 		type: String,
@@ -23,7 +28,14 @@ const Schema = new mongoose.Schema({
 	zipcode: String,
 	city: String,
 	phoneNumber: String,
-	resetId: String,
+	confirmed: {
+		type: Boolean,
+		defaultValue: false,
+	},
+	role: {
+		type: Number,
+		defaultValue: 0,
+	}
 });
 
 Schema.pre('save', function (next) {

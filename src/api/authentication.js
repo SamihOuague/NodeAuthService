@@ -32,7 +32,8 @@ module.exports = {
 				password: password,
 				email: email,
 				firstname,
-				lastname
+				lastname,
+				role: 0,
 			});
 			model.save((err, user) => {
 				if (err) next(err);

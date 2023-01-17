@@ -4,5 +4,6 @@ let mongoose = require("mongoose");
     await mongoose.connect(process.env.MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        useFindAndModify: true,
     });
 })();
