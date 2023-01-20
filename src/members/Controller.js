@@ -36,6 +36,8 @@ module.exports = {
 		try {
 			let token = req.headers.authorization.split(' ')[1];
 			let decoded = jwtVerify(token);
+			let regex = /^([a-zA-Z0-9]+)\.{0,1}[a-zA-Z0-9_-]+@{1}([a-zA-Z0-9_-]{3,})(\.[a-zA-Z]{2,5})$/;
+			if (req.body.email && !regex.test(req.body.email)) return res.status(400).send({msg: "Invalid email !"});
 			let user = await Model.findOneAndUpdate({_id: decoded.sub}, req.body, {new: true});
 			if (!user) return res.sendStatus(404);
 			return res.send(user);
@@ -81,7 +83,9 @@ module.exports = {
 		const { password, url_token } = req.body;
 		try {
 			let decoded = jwtVerify(url_token);
-			if (!password || password.length < 6) return res.sendStatus(400);
+			const limit = decoded.iat+((60*1000) * 15);
+			if (!password || password.length < 8) return res.sendStatus(400);
+			else if (limit < Date.now()) return res.status(403).send({msg: "Token expired !"});
 			let user = await Model.findOneAndUpdate({ _id: decoded.r_sub }, {password: bcrypt.hashSync(password, 12)});
 			if (!user) return res.sendStatus(404);
 			return res.send(user);
@@ -101,11 +105,11 @@ module.exports = {
 				from: "souaguen96@gmail.com",
 				to: user.email,
 				subject: "Email Confirmation",
-				text: `Copy this link : https://localhost:3001/verify-email?url_token=${url_token}`,
-				html: `<a href=\"https://localhost:3001/verify-email?url_token=${url_token}\">
+				text: `Copy this link : https://localhost:3000/verify-email?url_token=${url_token}`,
+				html: `<a href=\"https://localhost:3000/verify-email?url_token=${url_token}\">
 							Click Here to confirm
 						</a>
-						<p>Or copy this link : https://localhost:3001/verify-email?url_token=${url_token}</p>`,
+						<p>Or copy this link : https://localhost:3000/verify-email?url_token=${url_token}</p>`,
 			});
 			if (!msg || !msg.messageId) return res.sendStatus(500);
 			return res.send({msg});
@@ -116,10 +120,11 @@ module.exports = {
 	verifyEmail: async (req, res) => {
 		try {
 			const { url_token } = req.query;
-			console.log(req.params)
 			if (!url_token) return res.sendStatus(400);
 			const decoded = jwtVerify(url_token);
+			const limit = decoded.iat+((60*1000) * 15);
 			if (!decoded) return res.sendStatus(401);
+			else if (limit < Date.now()) return res.status(403).send({msg: "Token expired !"});
 			const user = await Model.findByIdAndUpdate({_id: decoded.e_sub}, { confirmed: true }, {new: true});
 			if (!user) return res.sendStatus(404);
 			return res.send({confirmed: user.confirmed});
