@@ -67,11 +67,11 @@ module.exports = {
 				from: "souaguen96@gmail.com",
 				to: user.email,
 				subject: "Reset Your Password",
-				text: `Copy this link : http://localhost:3000/reset-password?url_token=${url_token}`,
-				html: `<a href=\"http://localhost:3000/reset-password?url_token=${url_token}\">
+				text: `Copy this link : https://${process.env.DOMAIN_NAME}:3000/reset-password?url_token=${url_token}`,
+				html: `<a href=\"https://${process.env.DOMAIN_NAME}:3000/reset-password?url_token=${url_token}\">
 							Click Here to reset password
 						</a>
-						<p>Or copy this link : http://localhost:3000/reset-password?url_token=${url_token}</p>`,
+						<p>Or copy this link : https://${process.env.DOMAIN_NAME}:3000/reset-password?url_token=${url_token}</p>`,
 			});
 			if (!msg || !msg.messageId) return res.sendStatus(500);
 			return res.send({msg});
@@ -105,11 +105,11 @@ module.exports = {
 				from: "souaguen96@gmail.com",
 				to: user.email,
 				subject: "Email Confirmation",
-				text: `Copy this link : https://localhost:3000/verify-email?url_token=${url_token}`,
-				html: `<a href=\"https://localhost:3000/verify-email?url_token=${url_token}\">
+				text: `Copy this link : https://${process.env.DOMAIN_NAME}:3000/verify-email?url_token=${url_token}`,
+				html: `<a href=\"https://${process.env.DOMAIN_NAME}:3000/verify-email?url_token=${url_token}\">
 							Click Here to confirm
 						</a>
-						<p>Or copy this link : https://localhost:3000/verify-email?url_token=${url_token}</p>`,
+						<p>Or copy this link : https://${process.env.DOMAIN_NAME}:3000/verify-email?url_token=${url_token}</p>`,
 			});
 			if (!msg || !msg.messageId) return res.sendStatus(500);
 			return res.send({msg});
